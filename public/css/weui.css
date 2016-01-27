@@ -482,15 +482,17 @@ input.weui_btn_plain_default {
 .weui_cells_checkbox .weui_cell:active {
   background-color: #ECECEC;
 }
-.weui_cells_checkbox .weui_icon_checked:before {
+.weui_cells_checkbox .weui_icon_unchecked:before {
   content: '\EA01';
   color: #C9C9C9;
   font-size: 23px;
   display: block;
 }
-.weui_cells_checkbox .weui_check:checked + .weui_icon_checked:before {
+.weui_cells_checkbox .weui_icon_checked:before {
   content: '\EA06';
   color: #09BB07;
+  font-size: 23px;
+  display: block;
 }
 .weui_label {
   display: block;

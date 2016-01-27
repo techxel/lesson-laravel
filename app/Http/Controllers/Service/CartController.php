@@ -33,4 +33,36 @@ class CartController extends Controller
 
     return response($m3_result->toJson())->withCookie('bk_cart', implode(',', $bk_cart_arr));
   }
+
+  public function deleteCart(Request $request)
+  {
+    $m3_result = new M3Result;
+
+    $product_ids = $request->input('product_ids', '');
+    if($product_ids == '') {
+      $m3_result->status = 1;
+      $m3_result->message = '书籍ID为空';
+      return $m3_result->toJson();
+    }
+
+    $product_ids_arr = explode(',', $product_ids);
+
+    $bk_cart = $request->cookie('bk_cart');
+    $bk_cart_arr = ($bk_cart!=null ? explode(',', $bk_cart) : array());
+    foreach ($bk_cart_arr as $key => $value) {
+      $index = strpos($value, ':');
+      $product_id = substr($value, 0, $index);
+      // 存在, 删除
+      if(in_array($product_id, $product_ids_arr)) {
+        array_splice($bk_cart_arr, $key, 1);
+        continue;
+      }
+    }
+
+    $m3_result->status = 0;
+    $m3_result->message = '删除成功';
+
+    return response($m3_result->toJson())->withCookie('bk_cart', implode(',', $bk_cart_arr));
+
+  }
 }
