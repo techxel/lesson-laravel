@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Service;
 
 use App\Http\Controllers\Controller;
-
+use App\Tool\wxpay\WXTool;
 use Illuminate\Http\Request;
 use Log;
 
@@ -206,5 +206,41 @@ class PayController extends Controller
   public function merchant() {
 
     return view('alipay.merchant_url');
+  }
+
+
+  public function wxPay(Request $request) {
+    $openid = $request->session()->get('openid', '');
+    if($openid == '') {
+      $openid = WXTool::httpGet('http://'.$_SERVER['HTTP_HOST'].'/service/openid/get');
+
+    }
+    return WXTool::wxPayData('Test', 'qwdwde', 1, $openid);
+  }
+
+  public function getOpenid(Request $request) {
+    $code = $request->input('code', '');
+    //通过code获得openid
+    if($code == ''){
+      //触发微信返回code码
+      $redirect_uri = urlencode('http://'.$_SERVER['HTTP_HOST'].'/service/openid/get');
+      // 微信重定向
+      $url = 'https://open.weixin.qq.com/connect/oauth2/authorize' .
+        '?appid=' . config('wx_config.APPID') .
+        '&redirect_uri=' . $redirect_uri .
+        '&response_type=code' .
+        '&scope=snsapi_base' .
+        '&state=STATE' .
+        '#wechat_redirect';
+
+      return redirect($url);
+    }
+
+    //获取code码，以获取openid
+    $openid = WXTool::getOpenid($code);
+    // 将openid保存到session
+    $request->session()->put('openid', $openid);
+
+    return $openid;
   }
 }

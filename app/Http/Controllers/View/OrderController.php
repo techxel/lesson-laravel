@@ -8,7 +8,8 @@ use App\Entity\CartItem;
 use App\Entity\Product;
 use App\Entity\Order;
 use App\Entity\OrderItem;
-
+use App\Models\BKWXJsConfig;
+use App\Tool\wxpay\WXTool;
 use Log;
 
 class OrderController extends Controller
@@ -30,8 +31,24 @@ class OrderController extends Controller
       }
     }
 
+    // JSSDK 相关
+    $access_token = WXTool::getAccessToken();
+    $jsapi_ticket = WXTool::getJsApiTicket($access_token);
+    $noncestr = WXTool::createNonceStr();
+    $timestamp = time();
+    $url = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+    // 签名
+    $signature = WXTool::signature($jsapi_ticket, $noncestr, $timestamp, $url);
+    // 返回微信参数
+    $bk_wx_js_config = new BKWXJsConfig;
+    $bk_wx_js_config->appId = config('wx_config.APPID');
+    $bk_wx_js_config->timestamp = $timestamp;
+    $bk_wx_js_config->nonceStr = $noncestr;
+    $bk_wx_js_config->signature = $signature;
+
     return view('order_commit')->with('cart_items', $cart_items_arr)
-                               ->with('total_price', $total_price);
+                               ->with('total_price', $total_price)
+                               ->with('bk_wx_js_config', $bk_wx_js_config);
   }
 
   public function toOrderList(Request $request)

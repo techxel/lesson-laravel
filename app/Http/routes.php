@@ -38,10 +38,15 @@ Route::group(['prefix' => 'service'], function () {
   Route::get('category/parent_id/{parent_id}', 'Service\BookController@getCategoryByParentId');
   Route::get('cart/add/{product_id}', 'Service\CartController@addCart');
   Route::get('cart/delete', 'Service\CartController@deleteCart');
+
   Route::post('pay', 'Service\PayController@alipay');
   Route::post('pay/notify', 'Service\PayController@notify');
   Route::get('pay/call_back', 'Service\PayController@callBack');
   Route::get('pay/merchant', 'Service\PayController@merchant');
+
+  Route::get('wxpay', 'Service\PayController@wxPay');
+  Route::get('openid/get', 'Service\PayController@getOpenid');
+
 });
 
 Route::group(['middleware' => 'check.login'], function () {
