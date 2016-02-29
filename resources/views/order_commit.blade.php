@@ -25,13 +25,20 @@
     <div class="weui_cells">
         <div class="weui_cell weui_cell_select">
             <div class="weui_cell_bd weui_cell_primary">
-                <select class="weui_select" name="select1">
+                <select class="weui_select" name="payway">
                     <option selected="" value="1">支付宝</option>
                     <option value="2">微信</option>
                 </select>
             </div>
         </div>
     </div>
+
+    <form action="/service/alipay" id="alipay" method="post">
+      {{ csrf_field() }}
+      <input type="hidden" name="total_price" value="{{$total_price}}" />
+      <input type="hidden" name="name" value="{{$name}}" />
+      <input type="hidden" name="order_no" value="{{$order_no}}" />
+    </form>
 
     <div class="weui_cells">
         <div class="weui_cell">
@@ -71,11 +78,18 @@
 
   function _onPay() {
 
+    var payway = $('.weui_select option:selected').val();
+    if(payway == '1') {
+      $('#alipay').submit();
+      return;
+    }
+
     $.ajax({
-      type: "GET",
+      type: "POST",
       url: '/service/wxpay',
       dataType: 'json',
       cache: false,
+      data: {name: "{{$name}}", order_no: "{{$order_no}}", total_price: "{{$total_price}}", _token: "{{csrf_token()}}"},
       success: function(data) {
         if(data == null) {
           $('.bk_toptips').show();

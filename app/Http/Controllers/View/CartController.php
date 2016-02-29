@@ -69,6 +69,7 @@ class CartController extends Controller
         $cart_item->product_id = $product_id;
         $cart_item->count = $count;
         $cart_item->save();
+        $cart_item->product = Product::find($cart_item->product_id);
         array_push($cart_items_arr, $cart_item);
       }
     }

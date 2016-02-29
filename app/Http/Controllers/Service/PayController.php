@@ -4,12 +4,13 @@ namespace App\Http\Controllers\Service;
 
 use App\Http\Controllers\Controller;
 use App\Tool\wxpay\WXTool;
+use App\Entity\Order;
 use Illuminate\Http\Request;
 use Log;
 
 class PayController extends Controller
 {
-  public function alipay(Request $request) {
+  public function aliPay(Request $request) {
 
     require_once(app_path() . "/Tool/alipay/alipay.config.php");
     require_once(app_path() . "/Tool/alipay/lib/alipay_submit.class.php");
@@ -29,32 +30,33 @@ class PayController extends Controller
     //**req_data详细信息**
 
     //服务器异步通知页面路径
-    $notify_url = "http://" . $_SERVER['HTTP_HOST'] . '/service/pay/notify';
+    $notify_url = "http://" . $_SERVER['HTTP_HOST'] . '/service/pay/ali_notify';
     //需http://格式的完整路径，不允许加?id=123这类自定义参数
 
     //页面跳转同步通知页面路径
-    $call_back_url = "http://" . $_SERVER['HTTP_HOST'] . '/service/pay/call_back';
+    $call_back_url = "http://" . $_SERVER['HTTP_HOST'] . '/service/pay/ali_result';
     //需http://格式的完整路径，不允许加?id=123这类自定义参数
     //http://127.0.0.1:8800/WS_WAP_PAYWAP-PHP-UTF-8/call_back_url.php
 
     //操作中断返回地址
-    $merchant_url = "http://" . $_SERVER['HTTP_HOST'] . '/service/pay/merchant';
+    $merchant_url = "http://" . $_SERVER['HTTP_HOST'] . '/service/pay/ali_merchant';
     //用户付款中途退出返回商户的地址。需http://格式的完整路径，不允许加?id=123这类自定义参数
 
     //卖家支付宝帐户
-    $seller_email = $_POST['WIDseller_email'];
+    $seller_email = 'william@speakez.cn';
     //必填
 
     //商户订单号
-    $out_trade_no = $_POST['WIDout_trade_no'];
+    $out_trade_no = $_POST['order_no'];
     //商户网站订单系统中唯一订单号，必填
+    Log::info('out_trade_no:' . $out_trade_no);
 
     //订单名称
-    $subject = $_POST['WIDsubject'];
+    $subject = $_POST['name'];
     //必填
 
     //付款金额
-    $total_fee = $_POST['WIDtotal_fee'];
+    $total_fee = $_POST['total_price'];
     //必填
 
     //请求业务参数详细
@@ -115,7 +117,7 @@ class PayController extends Controller
   }
 
 
-  public function notify() {
+  public function aliNotify() {
 
     require_once(app_path() . "/Tool/alipay/alipay.config.php");
     require_once(app_path() . "/Tool/alipay/lib/alipay_notify.class.php");
@@ -149,6 +151,10 @@ class PayController extends Controller
     		else if ($trade_status == 'TRADE_SUCCESS') {
           // 修改用户的订单状态
           Log::info('支付成功');
+          $order = Order::where('order_no', $out_trade_no)->first();
+          $order->status = 2;
+          $order->save();
+
     			echo "success";		//请不要修改或删除
     		}
     	}
@@ -160,7 +166,7 @@ class PayController extends Controller
     }
   }
 
-  public function callBack() {
+  public function aliResult() {
 
     require_once(app_path() . "/Tool/alipay/alipay.config.php");
     require_once(app_path() . "/Tool/alipay/lib/alipay_notify.class.php");
@@ -203,7 +209,7 @@ class PayController extends Controller
   }
 
 
-  public function merchant() {
+  public function aliMerchant() {
 
     return view('alipay.merchant_url');
   }
@@ -215,7 +221,9 @@ class PayController extends Controller
       $openid = WXTool::httpGet('http://'.$_SERVER['HTTP_HOST'].'/service/openid/get');
 
     }
-    return WXTool::wxPayData('Test', 'qwdwde', 1, $openid);
+
+    return WXTool::wxPayData($request->input('name'), $request->input('order_no'),
+                1, $openid);
   }
 
   public function getOpenid(Request $request) {
@@ -242,5 +250,32 @@ class PayController extends Controller
     $request->session()->put('openid', $openid);
 
     return $openid;
+  }
+
+  public function wxNotify() {
+    Log::info('微信支付回调开始');
+    $return_data = file_get_contents("php://input");
+    Log::info('return_data: '.$return_data);
+
+    libxml_disable_entity_loader(true);
+    $data = simplexml_load_string($return_data, 'SimpleXMLElement', LIBXML_NOCDATA);
+
+    Log::info('return_code: '.$data->return_code);
+    if($data->return_code == 'SUCCESS') {
+      $order = Order::where('order_no', $data->out_trade_no)->first();
+      $order->status = 2;
+      $order->save();
+
+      return "<xml>
+                <return_code><![CDATA[SUCCESS]]></return_code>
+                <return_msg><![CDATA[OK]]></return_msg>
+              </xml>";
+    }
+    
+    return "<xml>
+              <return_code><![CDATA[FAIL]]></return_code>
+              <return_msg><![CDATA[FAIL]]></return_msg>
+            </xml>";
+
   }
 }

@@ -4,6 +4,7 @@ namespace App\Tool\wxpay;
 
 use Cache;
 use App\Models\BKWXPayConfig;
+use Log;
 
 class WXTool {
 
@@ -120,7 +121,7 @@ class WXTool {
     $mch_id = config('wx_config.MCHID');
     $nonce_str = WXTool::createNonceStr();
     $spbill_create_ip = $_SERVER["REMOTE_ADDR"];
-    $notify_url = 'http://' . $_SERVER['HTTP_HOST'] . '/notify_url';
+    $notify_url = 'http://' . $_SERVER['HTTP_HOST'] . '/service/pay/wx_notify';
     $time_start = date("YmdHis");
     $time_expire = date("YmdHis", time() + 900);
     $trade_type = 'JSAPI';
@@ -158,6 +159,8 @@ class WXTool {
     libxml_disable_entity_loader(true);
     $data = simplexml_load_string($return_data, 'SimpleXMLElement', LIBXML_NOCDATA);
 
+    Log::info('查看错误信息: ' . $data->return_msg);
+
     // 重新签名
     $timeStamp = time();
     $nonceStr = WXTool::createNonceStr();
@@ -178,6 +181,8 @@ class WXTool {
 
     $bk_wx_pay_config->status = 0;
     $bk_wx_pay_config->message = '返回成功';
+
+    Log::info($bk_wx_pay_config->toJson());
 
     return $bk_wx_pay_config->toJson();
   }
