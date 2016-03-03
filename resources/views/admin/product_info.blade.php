@@ -1,29 +1,37 @@
 @extends('admin.master')
 
 @section('content')
+
+  <style>
+    .row.cl {
+      margin: 20px 0;
+    }
+  </style>
+
+<form class="form form-horizontal" action="" method="post">
   <div class="row cl">
-    <label class="form-label col-3"><span class="c-red">*</span>名称：</label>
+    <label class="form-label col-3"><span class="c-red"></span>名称：</label>
     <div class="formControls col-5">
       {{$product->name}}
     </div>
     <div class="col-4"> </div>
   </div>
   <div class="row cl">
-    <label class="form-label col-3"><span class="c-red">*</span>简介：</label>
+    <label class="form-label col-3"><span class="c-red"></span>简介：</label>
     <div class="formControls col-5">
       {{$product->summary}}
     </div>
     <div class="col-4"> </div>
   </div>
   <div class="row cl">
-    <label class="form-label col-3"><span class="c-red">*</span>价格：</label>
+    <label class="form-label col-3"><span class="c-red"></span>价格：</label>
     <div class="formControls col-5">
       {{$product->price}}
     </div>
     <div class="col-4"> </div>
   </div>
   <div class="row cl">
-    <label class="form-label col-3"><span class="c-red">*</span>类别：</label>
+    <label class="form-label col-3"><span class="c-red"></span>类别：</label>
     <div class="formControls col-5">
       {{$product->category->name}}
     </div>
@@ -50,4 +58,5 @@
       @endforeach
     </div>
   </div>
+</div>
 @endsection

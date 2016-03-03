@@ -3,8 +3,8 @@
 @section('content')
 <header class="Hui-header cl"><a class="Hui-logo l" title="凯恩书店" href="/admin/index">凯恩书店</a><span class="Hui-subtitle l">后台</span>
 	<ul class="Hui-userbar">
-		<li>admin</li>
-		<li><a href="#">退出</a></li>
+		<li>{{$admin->username}}</li>
+		<li><a href="/admin/exit">退出</a></li>
 		<li id="Hui-msg"> <a href="#" title="消息"><span class="badge badge-danger">1</span><i class="Hui-iconfont" style="font-size:18px">&#xe68a;</i></a> </li>
 	</ul>
 	<a href="javascript:;" class="Hui-nav-toggle Hui-iconfont" aria-hidden="false">&#xe667;</a>

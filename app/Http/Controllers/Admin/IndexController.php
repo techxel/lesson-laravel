@@ -15,13 +15,20 @@ class IndexController extends Controller
     $password = $request->input('password', '');
 
     $m3_result = new M3Result;
-    $admin = Admin::where('username', $username)->where('password', $password)->first();
-    if(!$admin) {
+
+    if($username == '' || $password == '') {
       $m3_result->status = 1;
-      $m3_result->message = "帐号或密码错误";
+      $m3_result->message = "帐号或密码不能为空!";
+      return $m3_result->toJson();
+    }
+
+    $admin = Admin::where('username', $username)->where('password', md5('bk'. $password))->first();
+    if(!$admin) {
+      $m3_result->status = 2;
+      $m3_result->message = "帐号或密码错误!";
     } else {
       $m3_result->status = 0;
-      $m3_result->message = "登录成功";
+      $m3_result->message = "登录成功!";
 
       $request->session()->put('admin', $admin);
     }
@@ -34,9 +41,16 @@ class IndexController extends Controller
     return view('admin.login');
   }
 
-  public function toIndex()
+  public function toExit(Request $request)
   {
-    return view('admin.index');
+    $request->session()->forget('admin');
+    return view('admin.login');
+  }
+
+  public function toIndex(Request $request)
+  {
+    $admin = $request->session()->get('admin');
+    return view('admin.index')->with('admin', $admin);
   }
 
 }

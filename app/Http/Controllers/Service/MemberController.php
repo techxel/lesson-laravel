@@ -65,7 +65,7 @@ class MemberController extends Controller
 
         $member = new Member;
         $member->phone = $phone;
-        $member->password = md5('bk' + $password);
+        $member->password = md5('bk' . $password);
         $member->save();
 
         $m3_result->status = 0;
@@ -94,7 +94,7 @@ class MemberController extends Controller
 
       $member = new Member;
       $member->email = $email;
-      $member->password = md5('bk' + $password);
+      $member->password = md5('bk' . $password);
       $member->save();
 
       $uuid = UUID::create();
@@ -137,12 +137,12 @@ class MemberController extends Controller
     // ....
 
     // 判断
-    // $validate_code_session = $request->session()->get('validate_code');
-    // if($validate_code != $validate_code_session) {
-    //   $m3_result->status = 1;
-    //   $m3_result->message = '验证码不正确';
-    //   return $m3_result->toJson();
-    // }
+    $validate_code_session = $request->session()->get('validate_code');
+    if($validate_code != $validate_code_session) {
+      $m3_result->status = 1;
+      $m3_result->message = '验证码不正确';
+      return $m3_result->toJson();
+    }
 
     $member = null;
     if(strpos($username, '@') == true) {
