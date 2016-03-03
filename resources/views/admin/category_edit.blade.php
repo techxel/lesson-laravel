@@ -25,7 +25,7 @@
         @foreach($categories as $temp)
           @if($category->parent_id == $temp->id)
             <option selected value="{{$temp->id}}">{{$temp->name}}</option>
-          @else
+          @else if($category->id != $temp->id)
             <option value="{{$temp->id}}">{{$temp->name}}</option>
           @endif
         @endforeach
