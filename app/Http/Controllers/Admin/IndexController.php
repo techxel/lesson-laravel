@@ -3,12 +3,30 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use App\Models\M3Result;
+use App\Entity\Admin;
 
 class IndexController extends Controller
 {
-  public function login()
+  public function login(Request $request)
   {
-    return redirect('admin/index');
+    $username = $request->input('username', '');
+    $password = $request->input('password', '');
+
+    $m3_result = new M3Result;
+    $admin = Admin::where('username', $username)->where('password', $password)->first();
+    if(!$admin) {
+      $m3_result->status = 1;
+      $m3_result->message = "帐号或密码错误";
+    } else {
+      $m3_result->status = 0;
+      $m3_result->message = "登录成功";
+
+      $request->session()->put('admin', $admin);
+    }
+
+    return $m3_result->toJson();
   }
 
   public function toLogin()
