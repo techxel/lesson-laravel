@@ -3,7 +3,6 @@
 @section('title', $product->name)
 
 @section('content')
-<link rel="stylesheet" href="/css/swipe.css">
 
 <div class="page bk_content" style="top: 0;">
   <div class="addWrap">
@@ -57,7 +56,6 @@
 @endsection
 
 @section('my-js')
-<script src="/js/swipe.min.js" charset="utf-8"></script>
 <script type="text/javascript">
   var bullets = document.getElementById('position').getElementsByTagName('li');
   Swipe(document.getElementById('mySwipe'), {
