@@ -44,6 +44,10 @@ class WXTool {
     $data = WXTool::httpGet($url);
     $json = json_decode($data);
 
+    if(!isset($json->access_token)) {
+      return '';
+    }
+
     Cache::put('access_token', $json->access_token, 7200/60);
 
     return $json->access_token;
@@ -61,6 +65,10 @@ class WXTool {
 
     $data = WXTool::httpGet($url);
     $json = json_decode($data);
+
+    if(!isset($json->ticket)) {
+      return '';
+    }
 
     Cache::put('jsapi_ticket', $json->ticket, 7200/60);
 

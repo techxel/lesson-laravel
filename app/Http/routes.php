@@ -35,23 +35,19 @@ Route::group(['prefix' => 'service'], function () {
   Route::get('cart/add/{product_id}', 'Service\CartController@addCart');
   Route::get('cart/delete', 'Service\CartController@deleteCart');
 
+  Route::post('alipay', 'Service\PayController@aliPay');
+  Route::post('wxpay', 'Service\PayController@wxPay');
 
   Route::post('pay/ali_notify', 'Service\PayController@aliNotify');
   Route::get('pay/ali_result', 'Service\PayController@aliResult');
   Route::get('pay/ali_merchant', 'Service\PayController@aliMerchant');
 
   Route::post('pay/wx_notify', 'Service\PayController@wxNotify');
-  Route::get('openid/get', 'Service\PayController@getOpenid');
-
 });
 
-Route::group(['middleware' => 'check.login'], function () {
-  Route::post('/order_commit', 'View\OrderController@toOrderCommit');
-  Route::get('/order_list', 'View\OrderController@toOrderList');
-  Route::post('alipay', 'Service\PayController@aliPay');
-  Route::post('wxpay', 'Service\PayController@wxPay');
-});
 
+Route::match(['get', 'post'], '/order_commit', 'View\OrderController@toOrderCommit')->middleware(['check.cart', 'check.weixin']);
+Route::get('/order_list', 'View\OrderController@toOrderList')->middleware(['check.login']);
 
 /***********************************后台相关***********************************/
 

@@ -2,10 +2,17 @@
 
 return [
 
+  // 'APPID' => 'wx26ee57cac0f30fbb',
+  // 'APPSECRET' => '公众号密钥',
+  //
+  // 'MCHID' => '1245422002',
+  // 'KEY' => '商户平台32位密钥',
+
   'APPID' => 'wx26ee57cac0f30fbb',
-  'APPSECRET' => '公众号密钥',
+  'APPSECRET' => '667f886f0524675f17f2c08f7e24e896',
+
   'MCHID' => '1245422002',
-  'KEY' => '商户平台32位密钥',
+  'KEY' => 'dDsFds8weHEF23bddfKEegWfrtgBDJEF',
 
 
   //=======【证书路径设置】=====================================

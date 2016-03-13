@@ -9,13 +9,22 @@ use App\Entity\Product;
 use App\Entity\Order;
 use App\Entity\OrderItem;
 use App\Models\BKWXJsConfig;
-use App\Tool\wxpay\WXTool;
+use App\Tool\WXpay\WXTool;
 use Log;
 
 class OrderController extends Controller
 {
   public function toOrderCommit(Request $request)
   {
+    // 获取微信重定向返回的code
+    $code = $request->input('code', '');
+    if($code != '') {
+      //获取code码，以获取openid
+      $openid = WXTool::getOpenid($code);
+      // 将openid保存到session
+      $request->session()->put('openid', $openid);
+    }
+
     $product_ids = $request->input('product_ids', '');
 
     $product_ids_arr = ($product_ids!='' ? explode(',', $product_ids) : array());
@@ -28,6 +37,7 @@ class OrderController extends Controller
     $order->save();
 
     $cart_items_arr = array();
+    $cart_items_ids_arr = array();
     $total_price = 0;
     $name = '';
     foreach ($cart_items as $cart_item) {
@@ -36,6 +46,7 @@ class OrderController extends Controller
         $total_price += $cart_item->product->price * $cart_item->count;
         $name .= ('《'.$cart_item->product->name.'》');
         array_push($cart_items_arr, $cart_item);
+        array_push($cart_items_ids_arr, $cart_item->id);
 
         $order_item = new OrderItem;
         $order_item->order_id = $order->id;
@@ -45,8 +56,7 @@ class OrderController extends Controller
         $order_item->save();
       }
     }
-    // 删除购物车中的数据
-    CartItem::where('member_id', $member->id)->delete();
+    CartItem::whereIn('id', $cart_items_ids_arr)->delete();
 
     $order->name = $name;
     $order->total_price = $total_price;
@@ -58,7 +68,7 @@ class OrderController extends Controller
     $jsapi_ticket = WXTool::getJsApiTicket($access_token);
     $noncestr = WXTool::createNonceStr();
     $timestamp = time();
-    $url = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+    $url = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
     // 签名
     $signature = WXTool::signature($jsapi_ticket, $noncestr, $timestamp, $url);
     // 返回微信参数

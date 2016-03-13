@@ -3,17 +3,18 @@
 namespace App\Http\Controllers\Service;
 
 use App\Http\Controllers\Controller;
-use App\Tool\wxpay\WXTool;
+use App\Tool\WXpay\WXTool;
 use App\Entity\Order;
 use Illuminate\Http\Request;
 use Log;
+use App\Models\M3Result;
 
 class PayController extends Controller
 {
   public function aliPay(Request $request) {
 
-    require_once(app_path() . "/Tool/alipay/alipay.config.php");
-    require_once(app_path() . "/Tool/alipay/lib/alipay_submit.class.php");
+    require_once(app_path() . "/Tool/Alipay/alipay.config.php");
+    require_once(app_path() . "/Tool/Alipay/lib/alipay_submit.class.php");
 
     //返回格式
     $format = "xml";
@@ -214,42 +215,17 @@ class PayController extends Controller
     return view('alipay.merchant_url');
   }
 
-
   public function wxPay(Request $request) {
     $openid = $request->session()->get('openid', '');
     if($openid == '') {
-      $openid = WXTool::httpGet('http://'.$_SERVER['HTTP_HOST'].'/service/openid/get');
+      $m3_result = new M3Result;
+      $m3_result->status = 1;
+      $m3_result->message = 'Session已过期, 请重新提交订单';
 
+      return $m3_result;
     }
 
-    return WXTool::wxPayData($request->input('name'), $request->input('order_no'),
-                1, $openid);
-  }
-
-  public function getOpenid(Request $request) {
-    $code = $request->input('code', '');
-    //通过code获得openid
-    if($code == ''){
-      //触发微信返回code码
-      $redirect_uri = urlencode('http://'.$_SERVER['HTTP_HOST'].'/service/openid/get');
-      // 微信重定向
-      $url = 'https://open.weixin.qq.com/connect/oauth2/authorize' .
-        '?appid=' . config('wx_config.APPID') .
-        '&redirect_uri=' . $redirect_uri .
-        '&response_type=code' .
-        '&scope=snsapi_base' .
-        '&state=STATE' .
-        '#wechat_redirect';
-
-      return redirect($url);
-    }
-
-    //获取code码，以获取openid
-    $openid = WXTool::getOpenid($code);
-    // 将openid保存到session
-    $request->session()->put('openid', $openid);
-
-    return $openid;
+    return WXTool::wxPayData($request->input('name'), $request->input('order_no'), 1, $openid);
   }
 
   public function wxNotify() {
@@ -271,7 +247,7 @@ class PayController extends Controller
                 <return_msg><![CDATA[OK]]></return_msg>
               </xml>";
     }
-    
+
     return "<xml>
               <return_code><![CDATA[FAIL]]></return_code>
               <return_msg><![CDATA[FAIL]]></return_msg>

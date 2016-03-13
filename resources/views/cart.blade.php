@@ -25,10 +25,11 @@
         @endforeach
     </div>
   </div>
-  <form action="/order_commit" id="order_commit" method="post">
+  {{-- <form action="/order_commit" id="order_commit" method="post">
     {{ csrf_field() }}
     <input type="hide" name="product_ids" value="" />
-  </form>
+    <input type="hide" name="is_wx" value="" />
+  </form> --}}
   <div class="bk_fix_bottom">
     <div class="bk_half_area">
       <button class="weui_btn weui_btn_primary" onclick="_toCharge();">结算</button>
@@ -71,10 +72,17 @@
       return;
     }
 
-    // location.href = '/order_commit/' + product_ids_arr;
-    $('input[name=product_ids]').val(product_ids_arr+'');
-    $('#order_commit').submit();
+    // 如果是微信浏览器
+    var is_wx = 0;
+    var ua = navigator.userAgent.toLowerCase();//获取判断用的对象
+    if (ua.match(/MicroMessenger/i) == "micromessenger") {
+      is_wx = 1;
+    }
 
+    location.href = '/order_commit?product_ids=' + product_ids_arr + '&is_wx=' + is_wx;
+    // $('input[name=product_ids]').val(product_ids_arr+'');
+    // $('input[name=is_wx]').val(is_wx+'');
+    // $('#order_commit').submit();
   }
 
 
