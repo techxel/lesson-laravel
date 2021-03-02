@@ -134,3 +134,4 @@ request body = <TemplateSMS>
                   </TemplateSMS>
 request url = https://sandboxapp.cloopen.com:8883/2013-12-26/Accounts/aaf98f8949d575140149dd482efa04b5/SMS/TemplateSMS?sig=F556F16F0EC69355F2F0E5F198524F70
 response body = <?xml version="1.0" encoding="UTF-8" standalone="yes"?><Response><statusCode>000000</statusCode><TemplateSMS><dateCreated>20160110184522</dateCreated><smsMessageSid>cbb3fe0ee257442e86c48c2b01d998fe</smsMessageSid></TemplateSMS></Response>
+completed by Eva Frost
